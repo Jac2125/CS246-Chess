@@ -24,3 +24,5 @@ void Pawn::setEnPssnt(int currTurn){
 }
 
 int Pawn::getEnPssntTurn(){ return turn;}
+
+void Pawn::movedTwo(){ twoForward = true;}
