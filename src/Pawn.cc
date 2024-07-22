@@ -3,7 +3,7 @@
 Pawn::Pawn(char c, bool black):name{c}{}
 
 bool Pawn::canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) {
-
+    if(srcCd == destCd) return false;
     if(srcCd.first + 1 != destCd.first) return false;
     bool pieceExist = loc.find(destCd) == loc.end();
     if(srcCd.second == destCd.second) return pieceExist? false : true;
