@@ -8,6 +8,7 @@ class Piece{
     char name;
     public:
         virtual bool canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) = 0;
+        bool isBlack();
         char getName();
         virtual ~Piece();
 };
