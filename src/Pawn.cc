@@ -1,6 +1,6 @@
 #include "headers/Pawn.h"
 
-Pawn::Pawn(char c, bool black):name{c}{}
+Pawn::Pawn(char c):name{c}{}
 
 bool Pawn::canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) {
     if(srcCd == destCd) return false;

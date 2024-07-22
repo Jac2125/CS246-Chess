@@ -8,7 +8,7 @@ class Pawn : public Piece{
     int turn = -1;
     
     public:
-        Pawn(char name, bool black);
+        Pawn(char name);
         bool canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) override;
         void setEnPssnt(int currTurn);
         int getEnPssntTurn();
