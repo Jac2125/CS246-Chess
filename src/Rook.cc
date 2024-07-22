@@ -3,7 +3,7 @@
 Rook::Rook(char c):name{c} {}
 
 bool Rook::canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) {
-    aaa
+    hihshshshs
     if(srcCd == destCd) return false;
     if (!(destCd.first >= 1 && destCd.first <= 8 && destCd.second >= 1 && destCd.second <= 8)) return false;
     bool pieceExist = loc.find(destCd) != loc.end()? true : false;
