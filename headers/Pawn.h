@@ -3,16 +3,17 @@
 #include "Piece.h"
 
 class Pawn : public Piece{
-    char name;
-    bool twoForward = false;
+    bool twoForward = true;
     int turn = -1;
-    
+    vector<pair<int, int>> range;
     public:
-        Pawn(char name);
-        bool canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) override;
-        void setEnPssnt(int currTurn);
+        Pawn(char c, int row, int col);
+        bool canMove(pair<int, int> dest) override;
+        void updateRange(map<pair<int,int>, Piece>& loc) override;
         int getEnPssntTurn();
-        void movedTwo();
+        bool getTwoFwd();
+        void setTwoFwd();
+        void movedTwo(int currTurn);
 };
 
 #endif

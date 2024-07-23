@@ -1,9 +1,10 @@
 #include "headers/Knight.h"
 
-Knight::Knight(char c):name{c}{}
+Knight::Knight(char c, int row, int col):Piece{c, row, col}{}
 
-bool Knight::canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc){
-    if(srcCd == destCd) return false;
+/*bool Knight::canMove(pair<int, int> destCd, map<pair<int,int>, Piece>& loc){
+    pair<int, int > srcCd{row, col};
+    if( srcCd == destCd) return false;
     if (!(destCd.first >= 1 && destCd.first <= 8 && destCd.second >= 1 && destCd.second <= 8)) return false;
     int rowDiff = destCd.first - srcCd.first;
     int colDiff = destCd.second - srcCd.second;
@@ -19,4 +20,19 @@ bool Knight::canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,i
     }
     
     return false;
+}*/
+//TODO test for const pair &
+bool Knight::canMove(pair<int, int> dest){
+    for(auto pair : range){
+        if(pair == dest) return true;
+    }
+    return false;
+}
+
+void Knight::updateRange(map<pair<int,int>, Piece>& loc){
+    range.clear();
+    for(auto pair : moveOption){
+        auto it = loc.find({row+pair.first, col+pair.second});
+        if(it == loc.end() || it->second.isBlack() != isBlack()) range.push_back({row+pair.first, col+pair.second});
+    }
 }

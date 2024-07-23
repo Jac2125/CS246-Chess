@@ -3,13 +3,15 @@
 #include "Piece.h"
 
 class King: public Piece{
-    char name;
     bool moved = false;
+    vector<pair<int, int>> range;
     public:
-        King(char c);
-        bool canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) override;
-        SetMoved();
-        bool isMoved();
+        King(char c, int row, int col);
+        bool kingCanMove();
+        bool canMove(pair<int, int> dest) override;
+        void updateRange(map<pair<int,int>, Piece>& loc) override;
+        void setMoved();
+        bool getMoved();
 };
 
 #endif

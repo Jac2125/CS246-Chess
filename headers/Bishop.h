@@ -3,10 +3,12 @@
 #include "Piece.h"
 
 class Bishop: public Piece{
-    char name;
+    vector<pair<int, int>> range;
+    void updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc);
     public:
-        Bishop(char c);
-        bool canMove(pair<int, int> srcCd, pair<int, int> destCd, map<pair<int,int>, Piece> loc) override;
+        Bishop(char c, int row, int col);
+        bool canMove(pair<int, int> dest) override;
+        void updateRange(map<pair<int,int>, Piece>& loc) override;
 };
 
 #endif
