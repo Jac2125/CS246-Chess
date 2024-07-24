@@ -3,16 +3,17 @@
 #include <utility>
 #include <map>
 #include <vector>
+
 using namespace std;
 
 class Piece{
     protected:
-        char name;
+        char name = '\0';
         int row;
         int col;
     public:
         Piece(char name, int r, int c);
-        virtual bool canMove(pair<int, int> destCd) = 0;
+        virtual bool canMove(pair<int, int> dest);
         virtual void updateRange(map<pair<int,int>, Piece>& loc);
         bool isBlack();
         char getName();
