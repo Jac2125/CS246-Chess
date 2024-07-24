@@ -1,8 +1,8 @@
 #ifndef BOARD_H
 #define BOARD_H
-#include "Piece.h"
-#include "headers/King.h"
-#include "headers/Pawn.h"
+#include "../headers/Piece.h"
+#include "../headers/King.h"
+#include "../headers/Pawn.h"
 #include <utility>
 #include <map>
 #include <vector>
@@ -17,7 +17,7 @@ class Board{
     unique_ptr<King> wKing;
     bool wCheck;
     bool bCheck;
-    pair<pair<int, int>, pair<int, int>> enpssnt{{0,0}, {0,0}};
+    pair<pair<pair<int, int>, pair<int, int>>,pair<pair<int, int>, pair<int, int>>> enpssnt{{{0,0}, {0,0}},{{0,0}, {0,0}}};
     int enpssntTurn = -1; 
     int winner;
     int currTurn = 0;

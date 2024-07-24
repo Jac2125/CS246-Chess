@@ -1,8 +1,8 @@
-#include "headers/Board.h"
-#include "headers/Queen.h"
-#include "headers/Knight.h"
-#include "headers/Rook.h"
-#include "headers/Bishop.h"
+#include "../headers/Board.h"
+#include "../headers/Queen.h"
+#include "../headers/Knight.h"
+#include "../headers/Rook.h"
+#include "../headers/Bishop.h"
 
 ostream &operator<<(ostream& out, Board& board){
     for(int i = 8; i>0; i--){
@@ -45,13 +45,15 @@ bool Board::isStealmate(){
 
 bool Board::isCheckmate(King& k){
     bool kColour = k.isBlack();
-    if(kColour) return (bCheck && !k.movableNum()>0);
-    else return (wCheck && !k.movableNum()>0);
+    if(kColour) return (bCheck && !(k.movableNum()>0));
+    else return (wCheck && !(k.movableNum()>0));
 }
 
 bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
     if(!loc.find(src)->second->getMoved()) return false;
     if(!(src == pair<int, int>{1, 5} || src == pair<int, int>{8, 5})) return false;
+    char c  = loc.find(src)->second->getName();
+    if(c != 'p' || c != 'P') return false;
     
     bool kingIsBlack = loc.find(src)->second->isBlack();
     int rowNum;
@@ -108,37 +110,74 @@ bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
 }
 
 bool Board::isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest){
-    if(enpssnt == pair<pair<int, int>, pair<int, int>>{src, dest} && currTurn == enpssntTurn + 1){
+    if(enpssnt.first == pair<pair<int, int>, pair<int, int>>{src, dest} && currTurn == enpssntTurn + 1){
         remove(dest);
         auto kingHandler = loc.extract(src);
         kingHandler.key() = dest;
         loc.find(dest)->second->setMoved();
     }
+    if(enpssnt.second == pair<pair<int, int>, pair<int, int>>{src, dest} && currTurn == enpssntTurn + 1){
+        remove(dest);
+        auto kingHandler = loc.extract(src);
+        kingHandler.key() = dest;
+        loc.find(dest)->second->setMoved();
+    }
+    updateBoard();
     return false;
 }
 
 int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
+    
+    bool bTurn = currTurn % 2 == 0 ? true : false;
+    
     auto it = loc.find(src);
     if(it == loc.end()) return -1;
+    if(it->second->isBlack() != bTurn) return false;
     
     char n = it->second->getName();
-    if(n == 'p' || n == 'P'){
-        
-        if(isEnPssnt(src, dest)) return 1;
-    }
-
-    if(n == 'k' || n == 'K'){
-        if(!isCastling(src, dest)){
-            
-        }
-    }
+    if(isEnPssnt(src, dest)) return 0;
+    if(isCastling(src, dest)) return 0;
     if(!it->second->canMove(dest)) return -1;
 
+    if(n == 'p' || n == 'P'){
+        int rowDiff = src.first - dest.first;
+        if(rowDiff == 2 || rowDiff == -2){
+            int dir = (int)(rowDiff/2);
+            auto next = loc.find({dest.first, dest.second-1});
+            if(next != loc.end()){
+                char c = next->second->getName();
+                if((c == 'p' || c =='P') && it->second->isBlack() != next->second->isBlack()){
+                    enpssntTurn = currTurn;
+                    enpssnt.first = {{dest.first, dest.second-1}, {dest.first-dir, dest.second}};
+                }
+            }
+
+            next = loc.find({dest.first, dest.second+1});
+            if(next != loc.end()){
+                char c = next->second->getName();
+                if((c == 'p' || c =='P') && it->second->isBlack() != next->second->isBlack()){
+                    enpssntTurn = currTurn;
+                    enpssnt.first = {{dest.first, dest.second+1}, {dest.first-dir, dest.second}};
+                }
+            }
+        }
+    }
+
+    
     it->second->setMoved();
+    it->second->setCoord(dest.first, dest.second);
+    if(bTurn && inCheck(*bKing)){
+        bKing->setCoord(src.first, src.second);
+        return -1;
+    }
+
+    if(!bTurn && inCheck(*wKing)){
+        wKing->setCoord(src.first, src.second);
+        return -1;
+    }
     auto keyHandler = loc.extract(src);
     keyHandler.key() = dest;
-    if(isCheckmate(*bKing)) return 2;
-    if(isCheckmate(*wKing)) return 1;
+    updateBoard();
     return 0;
 }
 
@@ -215,6 +254,7 @@ void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
-    inCheck(*bKing);
-    inCheck(*wKing);
+    if(inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
+    if(inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
+    if(isStealmate()) winner = 0;
 }
