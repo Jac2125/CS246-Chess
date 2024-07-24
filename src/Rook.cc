@@ -1,6 +1,6 @@
 #include "headers/Rook.h"
 
-Rook::Rook(char name, int r, int c):Piece{name, r, c}{}
+Rook::Rook(char name, int row, int col):Piece{name, row, col}{}
 
 bool Rook::canMove(pair<int, int> dest){
     if(!(dest.first == row || dest.second == col)) return false;
@@ -15,7 +15,7 @@ bool Rook::canMove(pair<int, int> dest){
     return false;
 }
 
-void Rook::updateRange(map<pair<int,int>, Piece>& loc){
+void Rook::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
     range.clear();
     vector<int> dir{1, -1};
     for(int i : dir){
@@ -27,7 +27,7 @@ void Rook::updateRange(map<pair<int,int>, Piece>& loc){
     }
 }
 
-void Rook::updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc){
+void Rook::updateDirec(int x_dir, int y_dir, map<pair<int, int>, unique_ptr<Piece>>& loc){
     for(int i = 1; i<8; i++){
         int x = row+i*x_dir;
         int y = col+i*y_dir;
@@ -43,18 +43,10 @@ void Rook::updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc){
             break;
         }
 
-        if(it->second.isBlack() != isBlack()){
+        if(it->second->isBlack() != isBlack()){
             range.push_back(pair<int, int>{x, y});
             break;
         }
         break;
     }
-}
-
-void Rook::setMoved() {
-    this->moved = true;
-}
-
-bool Rook::getMoved() {
-    return this->moved;
 }

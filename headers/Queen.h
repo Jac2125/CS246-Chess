@@ -3,12 +3,11 @@
 #include "Piece.h"
 
 class Queen: public Piece{
-    vector<pair<int, int>> range;
-    void updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc);
+    void updateDirec(int x_dir, int y_dir, map<pair<int, int>, unique_ptr<Piece>>& loc);
     public:
         Queen(char c, int row, int col);
         bool canMove(pair<int, int> dest) override;
-        void updateRange(map<pair<int,int>, Piece>& loc) override;
+        void updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc) override;
 };
 
 #endif

@@ -3,13 +3,11 @@
 #include "Piece.h"
 
 class Knight: public Piece{
-    vector<pair<int, int>> range;
-    vector<pair<int, int>> moveOption{{1,2}, {-1, 2}, {1, -2}, {-1, -2},
-                                        {2, 1}, {2, -1}, {-2, 1}, {-2, -1}};
+    //vector<pair<int, int>> range;
     public:
         Knight(char c, int row, int col);
         bool canMove(pair<int, int> dest) override;
-        void updateRange(map<pair<int,int>, Piece>& loc) override;
+        void updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc) override;
 };
 
 #endif

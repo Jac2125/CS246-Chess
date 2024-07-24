@@ -1,30 +1,6 @@
-#include "headers/Bishop.h"
+#include "../headers/Bishop.h"
 
 Bishop::Bishop(char name, int r, int c):Piece{name, r, c}{}
-
-/*bool Bishop::canMove(pair<int, int> dest, map<pair<int,int>, Piece>& loc) {
-    if(srcCd == dest) return false;
-    if (!(dest.first >= 1 && dest.first <= 8 && dest.second >= 1 && dest.second <= 8)) return false;
-    bool pieceExist = loc.find(dest) != loc.end();
-    bool diffColour = pieceExist ? loc.find(dest)->second.isBlack() != loc.find(srcCd)->second.isBlack() : false;
-
-    int rowDiff = dest.first - srcCd.first;
-    int colDiff = dest.second - srcCd.second;
-
-    int absRow = (rowDiff < 0) ? -1*rowDiff : rowDiff;
-    int absCol = (colDiff < 0) ? -1*colDiff : colDiff;
-
-    if(absRow != absCol) return false;
-
-    int incX = (rowDiff < 0) ? -1 : 1;
-    int incY = (colDiff < 0) ? -1 : 1;
-
-    for(int i = srcCd.first, j = srcCd.second; !(i == dest.first && j == dest.second); i+=incX, j+=incY){
-        if(loc.find(pair<int, int>{i,j}) != loc.end()) return false;
-    }
-    if(!pieceExist || diffColour) return true;
-    return false;
-}*/
 
 bool Bishop::canMove(pair<int, int> dest){
     
@@ -47,7 +23,7 @@ bool Bishop::canMove(pair<int, int> dest){
     return false;
 }
 
-void Bishop::updateRange(map<pair<int,int>, Piece>& loc){
+void Bishop::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
     range.clear();
     vector<int> dir{1, -1};
     for(int i : dir){
@@ -57,7 +33,7 @@ void Bishop::updateRange(map<pair<int,int>, Piece>& loc){
     }
 }
 
-void Bishop::updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc){
+void Bishop::updateDirec(int x_dir, int y_dir, map<pair<int, int>, unique_ptr<Piece>>& loc){
     for(int i = 1; i<8; i++){
         int x = row+i*x_dir;
         int y = col+i*y_dir;
@@ -73,7 +49,7 @@ void Bishop::updateDirec(int x_dir, int y_dir, map<pair<int,int>, Piece>& loc){
             break;
         }
 
-        if(it->second.isBlack() != isBlack()){
+        if(it->second->isBlack() != isBlack()){
             range.push_back(pair<int, int>{x, y});
             break;
         }

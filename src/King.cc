@@ -9,7 +9,7 @@ bool King::canMove(pair<int, int> dest){
     return false;
 }
 
-void King::updateRange(map<pair<int,int>, Piece>& loc){
+void King::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
     range.clear();
     int x_left = col == 2 ? col : col - 1;
     int x_right = col == 7 ? col : col + 1;
@@ -19,21 +19,9 @@ void King::updateRange(map<pair<int,int>, Piece>& loc){
         for(int j = x_left; j <=  x_right; j++){
             if(row == i && col == j) continue;
             auto it = loc.find({i,j});
-            if(it == loc.end() || it->second.isBlack() != isBlack()){
+            if(it == loc.end() || it->second->isBlack() != isBlack()){
                 range.push_back({i,j});
             }
         }
     }
-}
-
-bool King::kingCanMove(){
-    return !(range.size() == 0);
-}
-
-void King::setMoved() {
-    this->moved = true;
-}
-
-bool King::getMoved() {
-    return this->moved;
 }
