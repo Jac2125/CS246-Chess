@@ -29,11 +29,13 @@ class Board{
         unique_ptr<King> bKing;
         unique_ptr<King> wKing;
     public: 
+        void init();
         bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);
         int add(const pair<int, int>& src, char p); // fail bit and success bit returned
         bool destInBoard(const pair<int, int>& src);
+        int getWinner();
         vector<pair<pair<int, int>, pair<int, int>>> getLegalMoves(char color);
         map<pair<int, int>, unique_ptr<Piece>>::iterator end();
         map<pair<int, int>, unique_ptr<Piece>>::iterator pieceAt(int i, int j);
