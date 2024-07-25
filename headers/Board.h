@@ -22,13 +22,13 @@ class Board{
     int winner;
     int currTurn = 0;
 
-    bool inCheck(King& k);
     bool isCheckmate(King& k);
     bool isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest);
     bool isCastling(const pair<int, int>& src, const pair<int, int>& dest);
     bool isStealmate();
     void updateBoard();
     public: 
+        bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);
         int add(const pair<int, int>& src, char p); // fail bit and success bit returned
