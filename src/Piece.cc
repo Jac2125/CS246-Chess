@@ -15,6 +15,10 @@ int Piece::movableNum(){
     return range.size();
 }
 
+vector<pair<int, int>> Piece::getRange() {
+    return range;
+}
+
 bool Piece::getMoved(){
     return moved;
 }

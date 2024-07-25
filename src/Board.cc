@@ -258,3 +258,14 @@ void Board::updateBoard(){
     if(inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
     if(isStealmate()) winner = 0;
 }
+
+vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
+    std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> legalMoves;
+    bool I_Want_White = (color == 'w');
+
+    for (auto it = loc.begin(); it != loc.end(); ++it) {
+
+    }
+
+    return legalMoves;
+}
