@@ -264,15 +264,25 @@ void Board::updateBoard(){
 }
 
 vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
-    std::vector<std::pair<std::pair<int, int>, std::pair<int, int>>> legalMoves;
+    vector<pair<pair<int, int>, pair<int, int>>> legalMoves;
     bool I_Want_White = (color == 'w');
 
-    for (auto it = loc.begin(); it != loc.end(); ++it) {
-
+     for (auto it = loc.begin(); it != loc.end(); ++it) {
+        if (I_Want_White && !it->second->isBlack()) { // For white pieces
+            for (auto move : it->second->getRange()) {
+                legalMoves.push_back({it->first, move});
+            }
+        } else if (!I_Want_White && it->second->isBlack()) { // For black pieces
+            for (auto move : it->second->getRange()) {
+                legalMoves.push_back({it->first, move});
+            }
+        }
     }
 
     return legalMoves;
 }
+
+
 int main(){
     Board b{};
     cout << b << endl;

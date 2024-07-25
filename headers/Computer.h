@@ -1,7 +1,9 @@
 #ifndef COMPUTER_H
 #define COMPUTER_H
 #include <random>
+#include <cstdlib> 
 #include <vector>
+#include <utility>
 #include "Players.h"
 
 using namespace std;
@@ -12,7 +14,7 @@ class Computer : public Players {
         pair<pair<int, int>, pair<int, int>> L1_GetMove(Board &CH_Board) const override;
         pair<pair<int, int>, pair<int, int>> L2_GetMove(Board &CH_Board) const override;
         pair<pair<int, int>, pair<int, int>> L3_GetMove(Board &CH_Board) const override;
-        pair<pair<int, int>, pair<int, int>> L4_GetMove(Board &CH_Board) const override;
+        //pair<pair<int, int>, pair<int, int>> L4_GetMove(Board &CH_Board) const override;
 };
 
 
