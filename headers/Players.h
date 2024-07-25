@@ -18,7 +18,7 @@ class Players {
         virtual pair<pair<int, int>, pair<int, int>> L1_GetMove(Board &CH_Board) const = 0;
         virtual pair<pair<int, int>, pair<int, int>> L2_GetMove(Board &CH_Board) const = 0;
         virtual pair<pair<int, int>, pair<int, int>> L3_GetMove(Board &CH_Board) const = 0;
-        virtual pair<pair<int, int>, pair<int, int>> L4_GetMove(Board &CH_Board) const = 0;
+        //virtual pair<pair<int, int>, pair<int, int>> L4_GetMove(Board &CH_Board) const = 0;
 };
 
 #endif

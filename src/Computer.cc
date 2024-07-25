@@ -1,5 +1,5 @@
-#include "headers/Computer.h"
-#include "headers/Board.h"
+#include "../headers/Computer.h"
+#include "../headers/Board.h"
 
 Computer::Computer(char Colour) : Players(Colour) {}
 
@@ -14,7 +14,7 @@ pair<pair<int, int>, pair<int, int>> Computer::L2_GetMove(Board &CH_Board) const
         vector<pair<pair<int, int>, pair<int, int>>> My_legal_Moves = CH_Board.getLegalMoves(colour);
         vector<pair<pair<int, int>, pair<int, int>>> capturingMoves;
 
-        for (const pair<pair<int, int>, pair<int, int>> move : My_legal_Moves) {
+        for (const pair<pair<int, int>, pair<int, int>>& move : My_legal_Moves) {
             char srcPiece = CH_Board.pieceAt(move.first.first, move.first.second)->second->getName();
             map<pair<int, int>, unique_ptr<Piece>>::iterator destPieceIter = CH_Board.pieceAt(move.second.first, move.second.second);
             char destPiece = destPieceIter != CH_Board.end() ? destPieceIter->second->getName() : ' ';
@@ -50,7 +50,7 @@ pair<pair<int, int>, pair<int, int>> Computer::L3_GetMove(Board &CH_Board) const
     vector<pair<pair<int, int>, pair<int, int>>> checkingMoves;
     vector<pair<pair<int, int>, pair<int, int>>> avoidingCaptureMoves;
 
-        for (auto move : legalMoves) {
+        for (auto move : My_legal_Moves) {
             char srcPiece = CH_Board.pieceAt(move.first.first, move.first.second)->second->getName();
             map<pair<int, int>, unique_ptr<Piece>>::iterator destPieceIter = CH_Board.pieceAt(move.second.first, move.second.second);
             char destPiece = destPieceIter != CH_Board.end() ? destPieceIter->second->getName() : ' ';

@@ -130,7 +130,6 @@ bool Board::isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest){
 }
 
 int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
-    
     bool bTurn = currTurn % 2 == 0 ? true : false;
     auto it = loc.find(src);
     if(it == loc.end()) return -1;
@@ -309,4 +308,5 @@ int main(){
         cout << b << endl;
         
     }
-}
+} 
+
