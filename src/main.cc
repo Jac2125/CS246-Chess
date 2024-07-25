@@ -1,11 +1,13 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include "../headers/Board.h"
 
 int main(){
     std::string command;
     bool blackTurn{false};
     bool currPlaying{false};
+    Board b{};
     while (std::cin >> command) {
         if (command == "game" ) {
             std::string white,black;
@@ -48,21 +50,22 @@ int main(){
             std::cin >> srcCol >> srcRow >> destCol >> destRow;
             std::pair<int, int>src{srcRow, srcCol - 'a' + 1};
             std::pair<int, int>dest{destRow, destCol - 'a' + 1};
-            std::cout << src.first << " " << src.second << std::endl;
-            std::cout << dest.first << " " << dest.second << std::endl;
+            b.move(src, dest);
+            cout << b << endl;
             //move using two pairs
         }
         else if (!currPlaying && command == "setup") {
             std::string option;
-            std::cin >> option;
             bool done = false;
-            while(!done){
+            while(!done && std::cin >> option){
                 if(option == "+"){
                     int srcRow;
                     char c,srcCol;
                     std::cin >> c >> srcCol >> srcRow;
                     std::pair<int, int>src{srcRow, srcCol - 'a' + 1};
                     std::cout << src.first << " " << src.second << " " << c << std::endl;
+                    b.add(src, c);
+                    cout << b << endl;
                     //add  piece c
                 }else if(option == "-"){
                     int srcRow;
@@ -70,6 +73,8 @@ int main(){
                     std::cin >> srcCol >> srcRow;
                     std::pair<int, int>src{srcRow, srcCol - 'a' + 1};
                     std::cout << src.first << " " << src.second << std::endl;
+                    b.remove(src);
+                    cout << b << endl;
                     //remove a piece from src
                 }else if(option == "="){
                     std::string colour;

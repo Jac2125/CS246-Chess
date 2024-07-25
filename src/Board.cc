@@ -3,6 +3,7 @@
 #include "../headers/Knight.h"
 #include "../headers/Rook.h"
 #include "../headers/Bishop.h"
+#include <iostream>
 
 ostream &operator<<(ostream& out, Board& board){
     for(int i = 8; i>0; i--){
@@ -168,12 +169,12 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     
     it->second->setMoved();
     it->second->setCoord(dest.first, dest.second);
-    if(bTurn && inCheck(*bKing)){
-        bKing->setCoord(src.first, src.second);
+    if(bTurn && bKing != NULL && inCheck(*bKing)){
+        it->second->setCoord(src.first, src.second);
         return -1;
     }
 
-    if(!bTurn && inCheck(*wKing)){
+    if(!bTurn && wKing != NULL && inCheck(*wKing)){
         wKing->setCoord(src.first, src.second);
         return -1;
     }
@@ -285,21 +286,27 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
 
 int main(){
     Board b{};
-    cout << b << endl;
-    b.add({2,3}, 'p');
-    //b.add({7, 7}, 'q');
-    cout << b << endl;
-    b.add({8,8}, 'K');
-    cout << b << endl;
-    b.add({1,2}, 'k');
-    cout << b << endl;
-    b.add({7,7}, 'q');
-    cout << b << endl;
-    
-    b.move({7,7}, {6,6});
-    cout << b << endl;
-    b.move({6,6}, {8,8});
-    cout << b << endl;
-    b.move({8,8}, {7, 6});
-    cout << b << endl;
+    string command;
+    cout << "Enter the command" << endl;
+    while(cin >> command){
+        cout << "Enter the command" << endl;
+        if(command ==  "add"){
+            char c;
+            int row, col;
+            cin >> c >> row >> col;
+            b.add({row, col}, c);
+        }else if(command == "remove"){
+            int row, col;
+            cin >> row >> col;
+            b.remove({row, col});
+        }else if (command == "move"){
+            int row1,col1, row2,col2;
+            cin >> row1 >> col1 >> row2 >> col2;
+            b.move({row1, col1}, {row2, col2});
+        }else{
+            cout << "Wrong Command" << endl;
+        }
+        cout << b << endl;
+        
+    }
 }

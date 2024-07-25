@@ -15,8 +15,8 @@ void Pawn::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
     int nextRow = row + dir;
     for(int i = -1; i <= 1; i++){
         auto it = loc.find({nextRow, col+i});
-        if(i != 0 && (it == loc.end() || it->second->isBlack() != isBlack())) range.push_back({nextRow, col+i});
-        if(i == 0 && it != loc.end()) range.push_back({nextRow, col});
+        if(i != 0 && (it != loc.end() && it->second->isBlack() != isBlack())) range.push_back({nextRow, col+i});
+        if(i == 0 && it == loc.end()) range.push_back({nextRow, col});
     }
     if((loc.find({nextRow, col}) != loc.end())&& (loc.find({nextRow+1, col}) != loc.end()) && !moved){
         range.push_back({nextRow + 1, col});
