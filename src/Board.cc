@@ -24,6 +24,30 @@ ostream &operator<<(ostream& out, Board& board){
     return out;
 }
 
+void Board::init(){
+    add({8,1},'r');
+    add({8,8},'r');
+    add({8,2},'n');
+    add({8,7},'n');
+    add({8,3},'b');
+    add({8,6},'b');
+    add({8,4},'q');
+    add({8,5},'k');
+    
+    add({1,1},'R');
+    add({1,8},'R');
+    add({1,2},'N');
+    add({1,7},'N');
+    add({1,3},'B');
+    add({1,6},'B');
+    add({1,4},'Q');
+    add({1,5},'K');
+    for(int i = 1; i <= 8; i++){
+        add({2,i},'P');
+        add({7,i},'p');
+    }
+}
+
 bool Board::inCheck(King& k){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         if(it->first == k.getCoord()) continue;
@@ -183,6 +207,7 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     add(dest, n);
     loc.find(dest)->second->setMoved();
     updateBoard();
+    currTurn++;
     return 0;
 }
 
@@ -264,12 +289,14 @@ void Board::updateBoard(){
     if(isStealmate()) winner = 0;
 }
 
+int Board::getWinner(){ return winner; }
+
 int main(){
     Board b{};
     string command;
     cout << "Enter the command" << endl;
     while(cin >> command){
-        cout << "Enter the command" << endl;
+        
         if(command ==  "add"){
             char c;
             int row, col;
@@ -283,10 +310,12 @@ int main(){
             int row1,col1, row2,col2;
             cin >> row1 >> col1 >> row2 >> col2;
             b.move({row1, col1}, {row2, col2});
+        }else if(command == "init"){
+            b.init();
         }else{
             cout << "Wrong Command" << endl;
         }
+        cout << b.getWinner() << endl;
         cout << b << endl;
-        
     }
 }

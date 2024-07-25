@@ -28,11 +28,13 @@ class Board{
     bool isStealmate();
     void updateBoard();
     public: 
+        void init();
         bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);
         int add(const pair<int, int>& src, char p); // fail bit and success bit returned
         bool destInBoard(const pair<int, int>& src);
+        int getWinner();
         map<pair<int, int>, unique_ptr<Piece>>::iterator end();
         map<pair<int, int>, unique_ptr<Piece>>::iterator pieceAt(int i, int j);
 };
