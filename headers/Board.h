@@ -25,13 +25,10 @@ class Board{
     bool isCastling(const pair<int, int>& src, const pair<int, int>& dest);
     bool isStealmate();
     void updateBoard();
-<<<<<<< HEAD
     public:
         unique_ptr<King> bKing;
         unique_ptr<King> wKing;
-=======
     public: 
->>>>>>> refs/remotes/origin/master
         bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);
