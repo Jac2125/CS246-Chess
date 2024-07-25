@@ -17,6 +17,7 @@ class Piece{
         Piece(char name, int row, int col);
         virtual bool canMove(pair<int, int> dest){return false;}
         virtual void updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){return;}
+        vector<pair<int, int>> getRange();
         int movableNum();
         bool isBlack();
         char getName();

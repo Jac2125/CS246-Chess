@@ -13,8 +13,6 @@ using namespace std;
 class Board{
     map<pair<int, int>, unique_ptr<Piece>> loc;
     pair<char, pair<pair<int, int>, pair<int, int>>> record;
-    unique_ptr<King> bKing;
-    unique_ptr<King> wKing;
     bool wCheck;
     bool bCheck;
     pair<pair<pair<int, int>, pair<int, int>>,pair<pair<int, int>, pair<int, int>>> enpssnt{{{0,0}, {0,0}},{{0,0}, {0,0}}};
@@ -27,6 +25,9 @@ class Board{
     bool isCastling(const pair<int, int>& src, const pair<int, int>& dest);
     bool isStealmate();
     void updateBoard();
+    public:
+        unique_ptr<King> bKing;
+        unique_ptr<King> wKing;
     public: 
         void init();
         bool inCheck(King& k);
@@ -35,6 +36,7 @@ class Board{
         int add(const pair<int, int>& src, char p); // fail bit and success bit returned
         bool destInBoard(const pair<int, int>& src);
         int getWinner();
+        vector<pair<pair<int, int>, pair<int, int>>> getLegalMoves(char color);
         map<pair<int, int>, unique_ptr<Piece>>::iterator end();
         map<pair<int, int>, unique_ptr<Piece>>::iterator pieceAt(int i, int j);
 };
