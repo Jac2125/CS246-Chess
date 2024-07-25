@@ -1,4 +1,4 @@
-#include "headers/Rook.h"
+#include "../headers/Rook.h"
 
 Rook::Rook(char name, int row, int col):Piece{name, row, col}{}
 

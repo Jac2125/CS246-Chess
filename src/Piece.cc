@@ -1,4 +1,4 @@
-#include "headers/Piece.h"
+#include "../headers/Piece.h"
 #include <cctype>
 
 Piece::~Piece(){};

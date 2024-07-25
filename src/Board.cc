@@ -53,7 +53,7 @@ bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
     if(!loc.find(src)->second->getMoved()) return false;
     if(!(src == pair<int, int>{1, 5} || src == pair<int, int>{8, 5})) return false;
     char c  = loc.find(src)->second->getName();
-    if(c != 'p' || c != 'P') return false;
+    if(c != 'K' || c != 'k') return false;
     
     bool kingIsBlack = loc.find(src)->second->isBlack();
     int rowNum;
@@ -115,21 +115,22 @@ bool Board::isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest){
         auto kingHandler = loc.extract(src);
         kingHandler.key() = dest;
         loc.find(dest)->second->setMoved();
+        updateBoard();
     }
     if(enpssnt.second == pair<pair<int, int>, pair<int, int>>{src, dest} && currTurn == enpssntTurn + 1){
         remove(dest);
         auto kingHandler = loc.extract(src);
         kingHandler.key() = dest;
         loc.find(dest)->second->setMoved();
+        updateBoard();
     }
-    updateBoard();
+    
     return false;
 }
 
 int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     
     bool bTurn = currTurn % 2 == 0 ? true : false;
-    
     auto it = loc.find(src);
     if(it == loc.end()) return -1;
     if(it->second->isBlack() != bTurn) return false;
@@ -137,6 +138,7 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     char n = it->second->getName();
     if(isEnPssnt(src, dest)) return 0;
     if(isCastling(src, dest)) return 0;
+    cout << dest.first << " " << dest.second << endl;
     if(!it->second->canMove(dest)) return -1;
 
     if(n == 'p' || n == 'P'){
@@ -175,8 +177,10 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
         wKing->setCoord(src.first, src.second);
         return -1;
     }
-    auto keyHandler = loc.extract(src);
-    keyHandler.key() = dest;
+    remove(dest);
+    remove(src);
+    add(dest, n);
+    loc.find(dest)->second->setMoved();
     updateBoard();
     return 0;
 }
@@ -184,6 +188,9 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
 void Board::remove(const pair<int, int>& src){
     auto it = loc.find(src);
     if(it == loc.end()) return;
+    char c = it->second->getName();
+    if(c == 'k') bKing = NULL;
+    if(c == 'K') wKing = NULL; 
     it->second.release();
     loc.erase(it->first);
 }
@@ -191,48 +198,45 @@ void Board::remove(const pair<int, int>& src){
 int Board::add(const pair<int, int>& src, char p){
     if(p == 'K' && wKing == NULL){
         wKing = make_unique<King>(King(p, src.first, src.second));
-        if(inCheck(*wKing)){
-            wKing.release();
-            wKing = NULL;
-            return 1;
-        }
         loc[src] = make_unique<King>(King(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
 
     if(p == 'k' && bKing == NULL){
         bKing = make_unique<King>(King(p, src.first, src.second));
-        if(inCheck(*bKing)){
-            bKing.release();
-            bKing = NULL;
-            return -1;
-        }
         loc[src] = make_unique<King>(King(p, src.first, src.second));
-        return 0;
+        updateBoard();
+        return 0;        
     }
 
     if(p == 'Q' || p == 'q'){
         loc[src] = make_unique<Queen>(Queen(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
 
     if(p == 'P' || p == 'p'){
         loc[src] = make_unique<Pawn>(Pawn(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
 
     if(p == 'N' || p == 'n'){
         loc[src] = make_unique<Knight>(Knight(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
 
     if(p == 'B' || p == 'b'){
         loc[src] = make_unique<Bishop>(Bishop(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
 
     if(p == 'R' || p == 'r'){
         loc[src] = make_unique<Rook>(Rook(p, src.first, src.second));
+        updateBoard();
         return 0;
     }
     return 1;
@@ -254,7 +258,28 @@ void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
-    if(inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
-    if(inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
+    if(bKing != NULL && inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
+    if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
     if(isStealmate()) winner = 0;
+}
+
+int main(){
+    Board b{};
+    cout << b << endl;
+    b.add({2,3}, 'p');
+    //b.add({7, 7}, 'q');
+    cout << b << endl;
+    b.add({8,8}, 'K');
+    cout << b << endl;
+    b.add({1,2}, 'k');
+    cout << b << endl;
+    b.add({7,7}, 'q');
+    cout << b << endl;
+    
+    b.move({7,7}, {6,6});
+    cout << b << endl;
+    b.move({6,6}, {8,8});
+    cout << b << endl;
+    b.move({8,8}, {7, 6});
+    cout << b << endl;
 }

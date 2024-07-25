@@ -1,4 +1,4 @@
-#include "headers/Pawn.h"
+#include "../headers/Pawn.h"
 
 Pawn::Pawn(char c, int row, int col):Piece{c, row, col}{}
 
