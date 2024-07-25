@@ -1,4 +1,4 @@
-#include "headers/Queen.h"
+#include "../headers/Queen.h"
 
 Queen::Queen(char c, int row, int col):Piece{c, row, col}{}
 
@@ -56,20 +56,30 @@ void Queen::updateDirec(int x_dir, int y_dir, map<pair<int, int>, unique_ptr<Pie
         int y = col+i*y_dir;
 
         if (!(x >= 1 &&  x <= 8 && y >= 1 && y <= 8)){
+            for(auto i : range){
+                if (i == pair<int, int>{x-x_dir, y-y_dir}) break;
+            } 
             range.push_back(pair<int, int>{x-x_dir, y-y_dir});
-            break;
+            return;
         };
 
         auto it = loc.find(pair<int, int>{x, y});
-        if(it == loc.end()) {
+        /*if(it == loc.end()) {
             range.push_back(pair<int, int>{x-x_dir, y-y_dir});
             break;
-        }
-
+        }*/
+        if(it == loc.end()) continue;
         if(it->second->isBlack() != isBlack()){
+            for(auto i : range){
+                if (i == pair<int, int>{x, y}) break;
+            }
             range.push_back(pair<int, int>{x, y});
-            break;
+            
+        }else{
+            for(auto i : range){
+                if (i == pair<int, int>{x-x_dir, y-y_dir}) break;
+            }
+            range.push_back(pair<int, int>{x-x_dir, y-y_dir});
         }
-        break;
     }
 }

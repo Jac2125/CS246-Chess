@@ -1,4 +1,4 @@
-#include "headers/King.h"
+#include "../headers/King.h"
 
 King::King(char c, int row, int col):Piece{c, row, col} {}
 
