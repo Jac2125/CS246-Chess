@@ -23,10 +23,10 @@ bool Queen::canMove(pair<int, int> dest){
     for(auto coord : range){
         int x = coord.first;
         int y = coord.second;
-        if(row < dest.first && dest.first <= x) return true;
-        if(x <= dest.first && dest.first < row) return true;
-        if(col < dest.second && dest.second <= y) return true;
-        if(y <= dest.second && dest.second < col) return true;
+        if(row < dest.first && dest.first <= x && y == dest.second) return true;
+        if(x <= dest.first && dest.first < row && y == dest.second) return true;
+        if(col < dest.second && dest.second <= y && x == dest.first) return true;
+        if(y <= dest.second && dest.second < col && x == dest.first) return true;
     }
     
     return false;

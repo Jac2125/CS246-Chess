@@ -1,5 +1,5 @@
-#include "headers/Computer.h"
-#include "headers/Board.h"
+#include "../headers/Computer.h"
+#include "../headers/Board.h"
 
 Computer::Computer(char Colour) : Players(Colour) {}
 

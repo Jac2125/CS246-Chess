@@ -46,18 +46,22 @@ void Board::init(){
         add({2,i},'P');
         add({7,i},'p');
     }
+    winner = -1;
 }
 
 bool Board::inCheck(King& k){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         if(it->first == k.getCoord()) continue;
-        if(!it->second->canMove(it->first)) continue;
+        it->second->updateRange(loc);
+        if(!it->second->canMove(k.getCoord())) continue;
         if(it->second->isBlack() != k.isBlack()){
             if(k.isBlack()) bCheck = true;
             else wCheck = true;
             return true;
         } 
     }
+    wCheck = false;
+    bCheck = false;
     return false;
 }
 
@@ -70,15 +74,147 @@ bool Board::isStealmate(){
 
 bool Board::isCheckmate(King& k){
     bool kColour = k.isBlack();
-    if(kColour) return (bCheck && !(k.movableNum()>0));
-    else return (wCheck && !(k.movableNum()>0));
+    k.updateRange(loc);
+    if(kColour){
+        if((bCheck && (k.movableNum()==0)) && !canSave(k)) return true;
+    }
+    else if(!kColour) return (wCheck && !(k.movableNum()==0));
+    return false;
+}
+
+bool Board::canSave(King& k){
+    bool kColour = k.isBlack();
+    int attack = 0;
+    for(auto it = loc.begin(); it != loc.end(); ++it){
+        if(it->second->isBlack() != kColour && it->second->canMove(k.getCoord())) attack++;
+    }
+    if(attack > 1) return false;
+    
+    int size = loc.size();
+    
+    vector<bool> bVec;
+    vector<char> cVec;
+    vector<pair<int,int>> pVec;
+    vector<vector<pair<int, int>>> vp;
+    
+    for(auto it = loc.begin();  it!= loc.end(); ++it){
+        bVec.push_back(it->second->isBlack());
+        cVec.push_back(it->second->getName());
+        pVec.push_back(it->second->getCoord());
+        vp.push_back(it->second->getRange());
+    }
+    for(int j = 0; j < size; ++j){
+        if(bVec.at(j) != kColour) continue;
+        char name = tolower(cVec.at(j));
+        if(name == 'k') continue;
+        if((name == 'p' || name == 'n') && canBlockDot(pVec.at(j), vp.at(j))){
+            return true;
+        }
+        else if(canBlockLine(pVec.at(j), vp.at(j))){
+            return true;
+        }
+    }
+    return false;
+}
+
+void Board::addNoUpdate(const pair<int, int>& src, char p){
+
+    if(p == 'Q' || p == 'q'){
+        loc[src] = make_unique<Queen>(Queen(p, src.first, src.second));
+    }
+
+    if(p == 'P' || p == 'p'){
+        loc[src] = make_unique<Pawn>(Pawn(p, src.first, src.second));
+    }
+
+    if(p == 'N' || p == 'n'){
+        loc[src] = make_unique<Knight>(Knight(p, src.first, src.second));
+    }
+
+    if(p == 'B' || p == 'b'){
+        loc[src] = make_unique<Bishop>(Bishop(p, src.first, src.second));
+    }
+
+    if(p == 'R' || p == 'r'){
+        loc[src] = make_unique<Rook>(Rook(p, src.first, src.second));
+    }
+    
+    for(auto it = loc.begin(); it != loc.end(); ++it){
+        it->second->updateRange(loc);
+    }
+
+}
+
+void Board::undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved){
+        char srcName = loc.find(dest)->second->getName();
+        remove(dest);
+        addNoUpdate(src, srcName);
+        
+        if(srcMoved){
+            loc.find(src)->second->setMoved();
+            if(srcName == 'k') bKing->setMoved();
+            if(srcName == 'K') wKing->setMoved();
+        } 
+        if(destName != '\0') {
+            addNoUpdate(dest, destName);
+            if(destMoved) loc.find(dest)->second->setMoved();
+        }
+        
+}
+
+bool Board::canBlockDot(pair<int, int>src, vector<pair<int, int>> range){
+    bool moved = loc.find(src)->second->getMoved();
+    char name = loc.find(src)->second->getName();
+    cout <<"Range Size: " << (range.size()) << endl;
+    cout<< name <<endl;
+    for(pair<int,int> p : range){
+        auto it = loc.find(p);
+        bool exist = it != loc.end();
+        bool destMoved = exist ? it->second->getMoved() : false;
+        bool bTurn = currTurn%2 == 0;
+        char destName = exist ? it->second->getName() : '\0';
+        remove(src);
+        addNoUpdate(p, name);
+        if(bTurn && bKing != NULL && inCheck(*bKing)){
+            undoNoUpdate(src, p, destMoved, destName, moved);
+            continue;
+        } else if(!bTurn && wKing != NULL && inCheck(*wKing)){
+            undoNoUpdate(src, p, destMoved, destName, moved);
+            continue;
+        }else{
+            cout << " iteration success3" << endl;
+            undoNoUpdate(src, p, destMoved, destName, moved);
+            return true;
+        }        
+    }
+    return false;
+}
+void lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col){
+    int rowDiff = row - p.first;
+    int colDiff = col - p.second;
+    int xDir = rowDiff ==  0 ? 0 : (rowDiff < 0?  1 : -1);
+    int yDir = colDiff ==  0 ? 0 : (colDiff < 0? 1 : -1);
+    for(int i = row+xDir, j = col+yDir; pair<int,int>{i,j}!=p; i+=xDir, j+=yDir){
+        line.push_back({i,j});
+    }
+    line.push_back(p);
+}
+bool Board::canBlockLine(pair<int, int>src, vector<pair<int, int>> range){
+    int originRow = src.first;
+    int originCol = src.second;
+    for(auto p : range){
+        vector<pair<int,int>> dots{};
+        lineToDots(dots, p, originRow, originCol);
+        if(canBlockDot(src,dots)) return true;
+    }
+    return false;
 }
 
 bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
-    if(!loc.find(src)->second->getMoved()) return false;
+    if(loc.find(src) != loc.end() && loc.find(src)->second->getMoved()) return false;
     if(!(src == pair<int, int>{1, 5} || src == pair<int, int>{8, 5})) return false;
     char c  = loc.find(src)->second->getName();
-    if(c != 'K' || c != 'k') return false;
+    if(c != 'K' && c != 'k') return false;
     
     bool kingIsBlack = loc.find(src)->second->isBlack();
     int rowNum;
@@ -91,9 +227,10 @@ bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
     else if(dest == pair<int, int>{rowNum, 3}) rook = {rowNum,1};
 
     auto it = loc.find(rook);
-    if(it != loc.end()) return false;
-    if(kingIsBlack && it->second->getName() != 'r') return false;
-    if(!kingIsBlack && it->second->getName() != 'R') return false;
+    if(it == loc.end()) return false;
+    char rookName = it->second->getName();
+    if(kingIsBlack && rookName != 'r') return false;
+    if(!kingIsBlack && rookName != 'R') return false;
     if(it->second->getMoved()) return false;
 
     pair<int, int> rookDest{};
@@ -123,13 +260,13 @@ bool Board::isCastling(const pair<int, int>& src, const pair<int, int>& dest){
         }
     }
 
-    auto kingHandler = loc.extract(src);
-    kingHandler.key() = dest;
+    remove(src);
+    add(dest, c);
     loc.find(dest)->second->setMoved();
-    auto rookHandler = loc.extract(rook);
-    rookHandler.key() = rookDest;
+    remove(rook);
+    add(rookDest, rookName);
     loc.find(rookDest)->second->setMoved();
-    
+    currTurn++;
     updateBoard();
     return true;
 }
@@ -163,7 +300,6 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     char n = it->second->getName();
     if(isEnPssnt(src, dest)) return 0;
     if(isCastling(src, dest)) return 0;
-    cout << dest.first << " " << dest.second << endl;
     if(!it->second->canMove(dest)) return -1;
 
     if(n == 'p' || n == 'P'){
@@ -190,11 +326,22 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
         }
     }
 
+    auto itDest = loc.find(dest);
+    bool movedSrc = it->second->getMoved();
+    bool movedDest = false;
+    char destN = '\0';
+    if(itDest != loc.end()){
+        destN = itDest->second->getName();
+        movedDest = itDest->second->getMoved();
+    } 
     
-    it->second->setMoved();
-    it->second->setCoord(dest.first, dest.second);
+    remove(src);
+    add(dest, n);
+    loc.find(dest)->second->setMoved();
+    if(n =='k') bKing->setMoved();
+    if(n =='K') wKing->setMoved();
     if(bTurn && bKing != NULL && inCheck(*bKing)){
-        it->second->setCoord(src.first, src.second);
+        undo(src, dest, movedDest, destN, movedSrc);
         return -1;
     }
 
@@ -206,9 +353,27 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     remove(src);
     add(dest, n);
     loc.find(dest)->second->setMoved();
-    updateBoard();
     currTurn++;
+    updateBoard();
     return 0;
+}
+
+
+void Board::undo(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved){
+        char srcName = loc.find(dest)->second->getName();
+        remove(dest);
+        add(src, srcName);
+        
+        if(srcMoved){
+            loc.find(src)->second->setMoved();
+            if(srcName == 'k') bKing->setMoved();
+            if(srcName == 'K') wKing->setMoved();
+        } 
+        if(destName != '\0') {
+            add(dest, destName);
+            if(destMoved) loc.find(dest)->second->setMoved();
+        }
+        
 }
 
 void Board::remove(const pair<int, int>& src){
@@ -279,26 +444,54 @@ map<pair<int, int>, unique_ptr<Piece>>::iterator Board::pieceAt(int i, int j){
 map<pair<int, int>, unique_ptr<Piece>>::iterator Board::end(){
     return loc.end();
 }
+bool Board::promotionAvailable(){
+    for(int i = 1; i<=8; ++i){
+        auto it = loc.find({1, i});
+        if(it != loc.end()) continue;
+        char name = it->second->getName();
+        if(name =='p') return true;
+    }
+    for(int i = 1; i<=8; ++i){
+        auto it = loc.find({8, i});
+        if(it != loc.end()) continue;
+        char name = it->second->getName();
+        if(name =='P') return true;
+    }
+    return false;
+}
 
+bool Board::pawnOnLastRows(){
+    vector<int>rows{1,8};
+    for(int i : rows){
+        for(int j = 1; j<=8; ++j){
+            auto it = loc.find({i, j});
+            if(it == loc.end()) continue;
+            char name = it->second->getName();
+            if(name =='p' || name == 'P') return true;
+        }  
+    }
+    return false;
+}
 void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
     if(bKing != NULL && inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
-    if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
-    if(isStealmate()) winner = 0;
+    else if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
+    else if(isStealmate()) winner = 0;
+    else winner = -1;
 }
 
 vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
     vector<pair<pair<int, int>, pair<int, int>>> legalMoves;
-    bool I_Want_White = (color == 'w');
+    bool isWhite = (color == 'w');
 
      for (auto it = loc.begin(); it != loc.end(); ++it) {
-        if (I_Want_White && !it->second->isBlack()) { // For white pieces
+        if (isWhite && !it->second->isBlack()) { // For white pieces
             for (auto move : it->second->getRange()) {
                 legalMoves.push_back({it->first, move});
             }
-        } else if (!I_Want_White && it->second->isBlack()) { // For black pieces
+        } else if (!isWhite && it->second->isBlack()) { // For black pieces
             for (auto move : it->second->getRange()) {
                 legalMoves.push_back({it->first, move});
             }
@@ -307,7 +500,6 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
 
     return legalMoves;
 }
-
 
 int Board::getWinner(){ return winner; }
 
@@ -335,7 +527,13 @@ int main(){
         }else{
             cout << "Wrong Command" << endl;
         }
+        if(b.bKing != NULL) cout << "Black is checked: " 
+                                    << b.inCheck(*b.bKing) <<  endl;
+        if(b.wKing != NULL)cout << "White is checked: " 
+                                    << b.inCheck(*b.wKing) <<  endl;
+        if(b.pawnOnLastRows()) cout << "Pawn On the Last Rows" << endl;
         cout << b.getWinner() << endl;
         cout << b << endl;
     }
+   
 }
