@@ -19,8 +19,7 @@ class Board{
     int enpssntTurn = -1; 
     int winner = -1;
     int currTurn = 0;
-
-    bool isCheckmate(King& k);
+    pair<int, int> promotePawn;
     bool isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest);
     bool isCastling(const pair<int, int>& src, const pair<int, int>& dest);
     bool isStealmate();
@@ -29,10 +28,16 @@ class Board{
     bool canBlockDot(pair<int, int>src, vector<pair<int, int>> range);
     bool canBlockLine(pair<int, int>src, vector<pair<int, int>> range);
     void undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
+    bool safelyAssume(pair<int, int> p, King& k);
     public: 
+        void lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col);
+        bool isCheckmate(King& k);
         void addNoUpdate(const pair<int, int>& src, char p);
+        bool verifySetup();
         bool promotionAvailable();
         bool pawnOnLastRows();
+        char whoseTurn();
+        void promote(char c);
         unique_ptr<King> bKing;
         unique_ptr<King> wKing;
         void init();

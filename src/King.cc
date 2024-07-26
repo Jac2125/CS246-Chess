@@ -26,10 +26,30 @@ void King::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
 
             if(it == loc.end() || it->second->isBlack() != isBlack()){
                 bool exist = false;
-                for(auto it2 = loc.begin(); it2 != loc.end(); ++it2){
-                    if((it2->second->getCoord() == getCoord())) continue;
-                    if(it2->second->isBlack() == isBlack()) continue;
-                    if(it2->second->canMove({i,j})){
+                int size = loc.size();
+                vector<bool> bVec;
+                vector<char> cVec;
+                vector<pair<int,int>> pVec;
+                for(auto it = loc.begin();  it!= loc.end(); ++it){
+                    bVec.push_back(it->second->isBlack());
+                    cVec.push_back(it->second->getName());
+                    pVec.push_back(it->second->getCoord());
+                }
+                for(int k  = 0; k <size; ++k){
+                    if((pVec.at(k) == getCoord())) continue;
+                    if(bVec.at(k) == isBlack()) continue;
+                    char name =  cVec.at(k);
+
+                    auto nodeHandler = loc.extract({row,col});
+                    nodeHandler.key() = {-1, -1};
+                    loc.insert(std::move(nodeHandler));
+                    if(name != 'k' && name != 'K') loc.find(pVec.at(k))->second->updateRange(loc);
+                    
+                    auto nodeHandler2 = loc.extract({-1,-1});
+                    nodeHandler2.key() = {row, col};
+                    loc.insert(std::move(nodeHandler2));
+
+                    if(loc.find(pVec.at(k))->second->canMove({i,j})){
                         exist = true;
                         break;
                     }

@@ -75,11 +75,40 @@ bool Board::isStealmate(){
 bool Board::isCheckmate(King& k){
     bool kColour = k.isBlack();
     k.updateRange(loc);
-    if(kColour){
-        if((bCheck && (k.movableNum()==0)) && !canSave(k)) return true;
-    }
-    else if(!kColour) return (wCheck && !(k.movableNum()==0));
+    if(kColour && (bCheck && (k.movableNum()==0 && !canSave(k)))) return true;
+    else if(!kColour && wCheck && (k.movableNum()==0 && !canSave(k))) return true;
     return false;
+}
+
+bool Board::safelyAssume(pair<int, int> p, King& k){
+    bool result = true;
+    auto nodeHandler = loc.extract(p);
+    nodeHandler.key() = {-1, -1};
+    loc.insert(std::move(nodeHandler));
+    
+    int size = loc.size();
+    vector<bool> bVec;
+    vector<char> cVec;
+    vector<pair<int,int>> pVec;
+
+    for(auto it = loc.begin(); it!= loc.end(); ++it){
+        bVec.push_back(it->second->isBlack());
+        cVec.push_back(it->second->getName());
+        pVec.push_back(it->second->getCoord());
+    }
+    for(int i = 0; i < size; ++i){
+        if(pVec.at(i) == pair<int,int>{-1, -1}) continue;
+        auto it2 = loc.find(pVec.at(i));
+        it2->second->updateRange(loc);
+        if(it2->second->canMove(k.getCoord())) {
+            result = false;
+            break;
+        }
+    }
+    auto nodeHandler2 = loc.extract({-1,-1});
+    nodeHandler2.key() = p;
+    loc.insert(std::move(nodeHandler2));
+    return result;
 }
 
 bool Board::canSave(King& k){
@@ -111,7 +140,8 @@ bool Board::canSave(King& k){
             return true;
         }
         else if(canBlockLine(pVec.at(j), vp.at(j))){
-            return true;
+            
+            return safelyAssume(pVec.at(j), k);
         }
     }
     return false;
@@ -165,8 +195,6 @@ void Board::undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, 
 bool Board::canBlockDot(pair<int, int>src, vector<pair<int, int>> range){
     bool moved = loc.find(src)->second->getMoved();
     char name = loc.find(src)->second->getName();
-    cout <<"Range Size: " << (range.size()) << endl;
-    cout<< name <<endl;
     for(pair<int,int> p : range){
         auto it = loc.find(p);
         bool exist = it != loc.end();
@@ -182,14 +210,13 @@ bool Board::canBlockDot(pair<int, int>src, vector<pair<int, int>> range){
             undoNoUpdate(src, p, destMoved, destName, moved);
             continue;
         }else{
-            cout << " iteration success3" << endl;
             undoNoUpdate(src, p, destMoved, destName, moved);
             return true;
         }        
     }
     return false;
 }
-void lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col){
+void Board::lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col){
     int rowDiff = row - p.first;
     int colDiff = col - p.second;
     int xDir = rowDiff ==  0 ? 0 : (rowDiff < 0?  1 : -1);
@@ -445,17 +472,17 @@ map<pair<int, int>, unique_ptr<Piece>>::iterator Board::end(){
     return loc.end();
 }
 bool Board::promotionAvailable(){
-    for(int i = 1; i<=8; ++i){
-        auto it = loc.find({1, i});
-        if(it != loc.end()) continue;
-        char name = it->second->getName();
-        if(name =='p') return true;
-    }
-    for(int i = 1; i<=8; ++i){
-        auto it = loc.find({8, i});
-        if(it != loc.end()) continue;
-        char name = it->second->getName();
-        if(name =='P') return true;
+    vector<int>rows{1,8};
+    for(int rowNum : rows){
+        for(int i = 1; i<=8; ++i){
+            auto it = loc.find({rowNum, i});
+            if(it == loc.end()) continue;
+            char name = it->second->getName();
+            if((name == 'P' || name =='p')){
+                promotePawn = {rowNum, i};
+                return true;
+            } 
+        }
     }
     return false;
 }
@@ -501,39 +528,22 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
     return legalMoves;
 }
 
-int Board::getWinner(){ return winner; }
-
-int main(){
-    Board b{};
-    string command;
-    cout << "Enter the command" << endl;
-    while(cin >> command){
-        
-        if(command ==  "add"){
-            char c;
-            int row, col;
-            cin >> c >> row >> col;
-            b.add({row, col}, c);
-        }else if(command == "remove"){
-            int row, col;
-            cin >> row >> col;
-            b.remove({row, col});
-        }else if (command == "move"){
-            int row1,col1, row2,col2;
-            cin >> row1 >> col1 >> row2 >> col2;
-            b.move({row1, col1}, {row2, col2});
-        }else if(command == "init"){
-            b.init();
-        }else{
-            cout << "Wrong Command" << endl;
-        }
-        if(b.bKing != NULL) cout << "Black is checked: " 
-                                    << b.inCheck(*b.bKing) <<  endl;
-        if(b.wKing != NULL)cout << "White is checked: " 
-                                    << b.inCheck(*b.wKing) <<  endl;
-        if(b.pawnOnLastRows()) cout << "Pawn On the Last Rows" << endl;
-        cout << b.getWinner() << endl;
-        cout << b << endl;
-    }
-   
+bool Board::verifySetup(){
+    bool checkBlack = bKing != NULL ?inCheck(*bKing) : false;
+    bool checkWhite = wKing != NULL ?inCheck(*wKing) : false;
+    bool pwn = pawnOnLastRows();
+    return !checkBlack && !checkWhite && !pwn;
 }
+
+void Board::promote(char c){
+    remove(promotePawn);
+    add(promotePawn, c);
+    loc.find(promotePawn)->second->setMoved();
+    promotePawn = {-1,-1};
+}
+
+char Board::whoseTurn(){
+    return currTurn %2 == 0? 'B' : 'W';
+}
+
+int Board::getWinner(){ return winner; }
