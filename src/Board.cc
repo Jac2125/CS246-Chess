@@ -3,6 +3,8 @@
 #include "../headers/Knight.h"
 #include "../headers/Rook.h"
 #include "../headers/Bishop.h"
+#include "../headers/Players.h"
+#include "../headers/Computer.h"
 #include <iostream>
 
 ostream &operator<<(ostream& out, Board& board){
@@ -310,32 +312,18 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
 
 int Board::getWinner(){ return winner; }
 
-int main(){
-    Board b{};
-    string command;
-    cout << "Enter the command" << endl;
-    while(cin >> command){
-        
-        if(command ==  "add"){
-            char c;
-            int row, col;
-            cin >> c >> row >> col;
-            b.add({row, col}, c);
-        }else if(command == "remove"){
-            int row, col;
-            cin >> row >> col;
-            b.remove({row, col});
-        }else if (command == "move"){
-            int row1,col1, row2,col2;
-            cin >> row1 >> col1 >> row2 >> col2;
-            b.move({row1, col1}, {row2, col2});
-        }else if(command == "init"){
-            b.init();
-        }else{
-            cout << "Wrong Command" << endl;
-        }
-        cout << b.getWinner() << endl;
-        cout << b << endl;
-    }
-} 
+int main() {
+    Board board;
+    board.init();  // Initialize the board with the initial setup
+    cout << board << endl;
+    board.add({6,1},'P');
+    cout << board << endl;
+    Computer blackPlayer('b');
+    std::pair<std::pair<int, int>, std::pair<int, int>> move;
+    move = blackPlayer.L2_GetMove(board);
+    auto srcPieceIter = board.pieceAt(move.first.first, move.first.second);
+    char srcPiece = srcPieceIter != board.end() ? srcPieceIter->second->getName() : ' ';
+    cout << "Piece: " << srcPiece << " at (" << move.first.first << ", " << move.first.second << ")";
+    cout << " can move to: (" << move.second.first << ", " << move.second.second << ")" << endl;
 
+}
