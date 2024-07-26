@@ -28,7 +28,7 @@ pair<pair<int, int>, pair<int, int>> Computer::L2_GetMove(Board &CH_Board) const
                     capturingMoves.push_back(move);
                 }
             }
-
+            CH_Board.RevertCurrTurn();
             CH_Board.remove(move.second);
             CH_Board.add(move.first, srcPiece);
             if (destPiece != ' ') {
@@ -53,41 +53,34 @@ pair<pair<int, int>, pair<int, int>> Computer::L3_GetMove(Board &CH_Board) const
 
     for (const auto& move : My_legal_Moves) {
         char srcPiece = CH_Board.pieceAt(move.first.first, move.first.second)->second->getName();
-        map<pair<int, int>, unique_ptr<Piece>>::iterator destPieceIter = CH_Board.pieceAt(move.second.first, move.second.second);
+        auto destPieceIter = CH_Board.pieceAt(move.second.first, move.second.second);
         char destPiece = destPieceIter != CH_Board.end() ? destPieceIter->second->getName() : ' ';
 
         int Move_Valid = CH_Board.move(move.first, move.second);
-        if (Move_Valid == 0) {
-            if (CH_Board.inCheck(colour == 'b' ? *CH_Board.wKing : *CH_Board.bKing)) {
-                checkingMoves.push_back(move);
-            } 
-            if (destPiece != ' ') {
-                capturingMoves.push_back(move);
-            } 
-            bool avoidsCapture = true;
-            bool UnderThreat = false;
 
+        if (Move_Valid == 0) {
+            bool avoidsCapture = true;
             for (const auto& oppMove : CH_Board.getLegalMoves(colour == 'b' ? 'w' : 'b')) {
-                if (oppMove.second == move.first) {
-                    UnderThreat = true;
+                if (oppMove.second == move.second) {
+                    avoidsCapture = false;
                     break;
                 }
             }
-
-            if (UnderThreat) {
-                for (const auto& oppMove : CH_Board.getLegalMoves(colour == 'b' ? 'w' : 'b')) {
-                    if (oppMove.second == move.second) {
-                        avoidsCapture = false;
-                        break;
-                    }
+            if (avoidsCapture) {
+                avoidingCaptureMoves.push_back(move);
+            } 
+            else {
+                if (CH_Board.inCheck(colour == 'b' ? *CH_Board.wKing : *CH_Board.bKing)) {
+                    checkingMoves.push_back(move);
                 }
 
-                if (avoidsCapture) {
-                    avoidingCaptureMoves.push_back(move);
+                if (destPiece != ' ') {
+                    capturingMoves.push_back(move);
                 }
             }
         }
 
+        CH_Board.RevertCurrTurn();
         CH_Board.remove(move.second);
         CH_Board.add(move.first, srcPiece);
         if (destPiece != ' ') {
@@ -97,14 +90,14 @@ pair<pair<int, int>, pair<int, int>> Computer::L3_GetMove(Board &CH_Board) const
 
     int randomIndex;
 
-    if (!checkingMoves.empty()) {
-        randomIndex = rand() % checkingMoves.size();
-        return checkingMoves[randomIndex];
-    }
-
     if (!avoidingCaptureMoves.empty()) {
         randomIndex = rand() % avoidingCaptureMoves.size();
         return avoidingCaptureMoves[randomIndex];
+    }
+
+    if (!checkingMoves.empty()) {
+        randomIndex = rand() % checkingMoves.size();
+        return checkingMoves[randomIndex];
     }
 
     if (!capturingMoves.empty()) {

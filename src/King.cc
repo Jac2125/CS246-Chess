@@ -3,6 +3,7 @@
 King::King(char c, int row, int col):Piece{c, row, col} {}
 
 bool King::canMove(pair<int, int> dest){
+    
     for(auto coord : range){
         if(coord == dest) return true;
     }
@@ -28,7 +29,6 @@ void King::updateRange(map<pair<int, int>, unique_ptr<Piece>>& loc){
                 for(auto it2 = loc.begin(); it2 != loc.end(); ++it2){
                     if((it2->second->getCoord() == getCoord())) continue;
                     if(it2->second->isBlack() == isBlack()) continue;
-                    it2->second->updateRange(loc);
                     if(it2->second->canMove({i,j})){
                         exist = true;
                         break;

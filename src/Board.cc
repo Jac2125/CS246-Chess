@@ -3,7 +3,6 @@
 #include "../headers/Knight.h"
 #include "../headers/Rook.h"
 #include "../headers/Bishop.h"
-#include "../headers/Players.h"
 #include "../headers/Computer.h"
 #include <iostream>
 
@@ -293,6 +292,7 @@ bool Board::isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest){
 }
 
 int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
+    
     bool bTurn = currTurn % 2 == 0 ? true : false;
     auto it = loc.find(src);
     if(it == loc.end()) return -1;
@@ -477,8 +477,8 @@ void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
-    if(bKing != NULL && inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
-    else if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
+    if(bKing != NULL && inCheck(*bKing) ) winner = 1;
+    else if(wKing != NULL && inCheck(*wKing)) winner = 2;
     else if(isStealmate()) winner = 0;
     else winner = -1;
 }
@@ -504,37 +504,54 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
 
 int Board::getWinner(){ return winner; }
 
-int main(){
-    Board b{};
-    string command;
-    cout << "Enter the command" << endl;
-    while(cin >> command){
-        
-        if(command ==  "add"){
-            char c;
-            int row, col;
-            cin >> c >> row >> col;
-            b.add({row, col}, c);
-        }else if(command == "remove"){
-            int row, col;
-            cin >> row >> col;
-            b.remove({row, col});
-        }else if (command == "move"){
-            int row1,col1, row2,col2;
-            cin >> row1 >> col1 >> row2 >> col2;
-            b.move({row1, col1}, {row2, col2});
-        }else if(command == "init"){
-            b.init();
-        }else{
-            cout << "Wrong Command" << endl;
+void Board::RevertCurrTurn() { currTurn--; };
+
+int main() {
+    Board chessBoard;
+    chessBoard.init();
+    
+    Computer blackPlayer('b');
+    Computer whitePlayer('w');
+
+    std::cout << "Initial board:\n";
+    std::cout << chessBoard << std::endl;
+
+    while (true) {
+        // Black's move
+        auto blackMove = blackPlayer.L3_GetMove(chessBoard);
+        int blackMoveResult = chessBoard.move(blackMove.first, blackMove.second);
+        std::cout << "Black's move: (" << blackMove.first.first << ", " << blackMove.first.second 
+                  << ") -> (" << blackMove.second.first << ", " << blackMove.second.second << ")\n";
+        std::cout << "Move result: " << blackMoveResult << "\n";
+        std::cout << "Board after black's move:\n";
+        std::cout << chessBoard << std::endl;
+
+        if (chessBoard.getWinner() != -1) {
+            break;
         }
-        if(b.bKing != NULL) cout << "Black is checked: " 
-                                    << b.inCheck(*b.bKing) <<  endl;
-        if(b.wKing != NULL)cout << "White is checked: " 
-                                    << b.inCheck(*b.wKing) <<  endl;
-        if(b.pawnOnLastRows()) cout << "Pawn On the Last Rows" << endl;
-        cout << b.getWinner() << endl;
-        cout << b << endl;
+
+        // White's move
+        auto whiteMove = whitePlayer.L3_GetMove(chessBoard);
+        int whiteMoveResult = chessBoard.move(whiteMove.first, whiteMove.second);
+        std::cout << "White's move: (" << whiteMove.first.first << ", " << whiteMove.first.second 
+                  << ") -> (" << whiteMove.second.first << ", " << whiteMove.second.second << ")\n";
+        std::cout << "Move result: " << whiteMoveResult << "\n";
+        std::cout << "Board after white's move:\n";
+        std::cout << chessBoard << std::endl;
+
+        if (chessBoard.getWinner() != -1) {
+            break;
+        }
     }
-   
+
+    int winner = chessBoard.getWinner();
+    if (winner == 1) {
+        std::cout << "Black wins!\n";
+    } else if (winner == 2) {
+        std::cout << "White wins!\n";
+    } else {
+        std::cout << "It's a stalemate!\n";
+    }
+
+    return 0;
 }
