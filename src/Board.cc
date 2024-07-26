@@ -316,14 +316,16 @@ int main() {
     Board board;
     board.init();  // Initialize the board with the initial setup
     cout << board << endl;
-    board.add({6,1},'P');
-    cout << board << endl;
-    Computer blackPlayer('b');
-    std::pair<std::pair<int, int>, std::pair<int, int>> move;
-    move = blackPlayer.L2_GetMove(board);
-    auto srcPieceIter = board.pieceAt(move.first.first, move.first.second);
-    char srcPiece = srcPieceIter != board.end() ? srcPieceIter->second->getName() : ' ';
-    cout << "Piece: " << srcPiece << " at (" << move.first.first << ", " << move.first.second << ")";
-    cout << " can move to: (" << move.second.first << ", " << move.second.second << ")" << endl;
+
+
+    vector<pair<pair<int, int>, pair<int, int>>> My_legal_Moves = board.getLegalMoves('b');
+
+    for (const auto& move : My_legal_Moves) {
+        auto srcPieceIter = board.pieceAt(move.first.first, move.first.second);
+        char srcPiece = srcPieceIter != board.end() ? srcPieceIter->second->getName() : ' ';
+    
+        cout << "Piece: " << srcPiece << " at (" << move.first.first << ", " << move.first.second << ")";
+        cout << " can move to: (" << move.second.first << ", " << move.second.second << ")" << endl;
+    }
 
 }
