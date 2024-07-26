@@ -28,6 +28,7 @@ class Board{
     bool canBlockLine(pair<int, int>src, vector<pair<int, int>> range);
     void undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
     bool safelyAssume(pair<int, int> p, King& k);
+    void updateBoard();
     public: 
         void lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col);
         bool isCheckmate(King& k);
@@ -41,7 +42,6 @@ class Board{
         unique_ptr<King> wKing;
         void init();
         void undo(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
-        bool isCheckmate(King& k);
         bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);

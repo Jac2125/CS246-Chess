@@ -4,7 +4,6 @@
 #include "../headers/Rook.h"
 #include "../headers/Bishop.h"
 #include "../headers/Computer.h"
-#include <iostream>
 
 ostream &operator<<(ostream& out, Board& board){
     for(int i = 8; i>0; i--){
@@ -529,59 +528,6 @@ vector<pair<pair<int, int>, pair<int, int>>> Board::getLegalMoves(char color) {
     return legalMoves;
 }
 
-int Board::getWinner(){ return winner; }
-
-void Board::RevertCurrTurn() { currTurn--; };
-
-int main() {
-    Board chessBoard;
-    chessBoard.init();
-    
-    Computer blackPlayer('b');
-    Computer whitePlayer('w');
-
-    std::cout << "Initial board:\n";
-    std::cout << chessBoard << std::endl;
-
-    while (true) {
-        // Black's move
-        auto blackMove = blackPlayer.L3_GetMove(chessBoard);
-        int blackMoveResult = chessBoard.move(blackMove.first, blackMove.second);
-        std::cout << "Black's move: (" << blackMove.first.first << ", " << blackMove.first.second 
-                  << ") -> (" << blackMove.second.first << ", " << blackMove.second.second << ")\n";
-        std::cout << "Move result: " << blackMoveResult << "\n";
-        std::cout << "Board after black's move:\n";
-        std::cout << chessBoard << std::endl;
-
-        if (chessBoard.getWinner() != -1) {
-            break;
-        }
-
-        // White's move
-        auto whiteMove = whitePlayer.L3_GetMove(chessBoard);
-        int whiteMoveResult = chessBoard.move(whiteMove.first, whiteMove.second);
-        std::cout << "White's move: (" << whiteMove.first.first << ", " << whiteMove.first.second 
-                  << ") -> (" << whiteMove.second.first << ", " << whiteMove.second.second << ")\n";
-        std::cout << "Move result: " << whiteMoveResult << "\n";
-        std::cout << "Board after white's move:\n";
-        std::cout << chessBoard << std::endl;
-
-        if (chessBoard.getWinner() != -1) {
-            break;
-        }
-    }
-
-    int winner = chessBoard.getWinner();
-    if (winner == 1) {
-        std::cout << "Black wins!\n";
-    } else if (winner == 2) {
-        std::cout << "White wins!\n";
-    } else {
-        std::cout << "It's a stalemate!\n";
-    }
-
-    return 0;
-}
 bool Board::verifySetup(){
     bool checkBlack = bKing != NULL ?inCheck(*bKing) : false;
     bool checkWhite = wKing != NULL ?inCheck(*wKing) : false;
