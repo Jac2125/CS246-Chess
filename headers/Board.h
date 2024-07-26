@@ -23,7 +23,6 @@ class Board{
     bool isEnPssnt(const pair<int, int>& src, const pair<int, int>& dest);
     bool isCastling(const pair<int, int>& src, const pair<int, int>& dest);
     bool isStealmate();
-    void updateBoard();
     bool canSave(King& s);
     bool canBlockDot(pair<int, int>src, vector<pair<int, int>> range);
     bool canBlockLine(pair<int, int>src, vector<pair<int, int>> range);
@@ -42,6 +41,7 @@ class Board{
         unique_ptr<King> wKing;
         void init();
         void undo(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
+        bool isCheckmate(King& k);
         bool inCheck(King& k);
         int move(const pair<int, int>& src, const pair<int, int>& dest);
         void remove(const pair<int, int>& src);
