@@ -25,26 +25,26 @@ ostream &operator<<(ostream& out, Board& board){
 }
 
 void Board::init(){
-    addNoUpdate({8,1},'r');
-    addNoUpdate({8,8},'r');
-    addNoUpdate({8,2},'n');
-    addNoUpdate({8,7},'n');
-    addNoUpdate({8,3},'b');
-    addNoUpdate({8,6},'b');
-    addNoUpdate({8,4},'q');
-    addNoUpdate({8,5},'k');
+    add({8,1},'r');
+    add({8,8},'r');
+    add({8,2},'n');
+    add({8,7},'n');
+    add({8,3},'b');
+    add({8,6},'b');
+    add({8,4},'q');
+    add({8,5},'k');
     
-    addNoUpdate({1,1},'R');
-    addNoUpdate({1,8},'R');
-    addNoUpdate({1,2},'N');
-    addNoUpdate({1,7},'N');
-    addNoUpdate({1,3},'B');
-    addNoUpdate({1,6},'B');
-    addNoUpdate({1,4},'Q');
-    addNoUpdate({1,5},'K');
+    add({1,1},'R');
+    add({1,8},'R');
+    add({1,2},'N');
+    add({1,7},'N');
+    add({1,3},'B');
+    add({1,6},'B');
+    add({1,4},'Q');
+    add({1,5},'K');
     for(int i = 1; i <= 8; i++){
-        addNoUpdate({2,i},'P');
-        addNoUpdate({7,i},'p');
+        add({2,i},'P');
+        add({7,i},'p');
     }
     winner = -1;
 }
@@ -476,8 +476,8 @@ void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
-    if(bKing != NULL && inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
-    else if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
+    if(bKing != NULL && inCheck(*bKing) ) winner = 1;
+    else if(wKing != NULL && inCheck(*wKing)) winner = 2;
     else if(isStealmate()) winner = 0;
     else winner = -1;
 }
