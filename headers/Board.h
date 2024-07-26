@@ -3,6 +3,7 @@
 #include "../headers/Piece.h"
 #include "../headers/King.h"
 #include "../headers/Pawn.h"
+#include "../headers/window.h"
 #include <utility>
 #include <map>
 #include <vector>
@@ -11,8 +12,8 @@
 using namespace std;
 
 class Board{
+    Xwindow window{400, 400};
     map<pair<int, int>, unique_ptr<Piece>> loc;
-    pair<char, pair<pair<int, int>, pair<int, int>>> record;
     bool wCheck;
     bool bCheck;
     pair<pair<pair<int, int>, pair<int, int>>,pair<pair<int, int>, pair<int, int>>> enpssnt{{{0,0}, {0,0}},{{0,0}, {0,0}}};
@@ -30,6 +31,7 @@ class Board{
     bool safelyAssume(pair<int, int> p, King& k);
     void updateBoard();
     public: 
+        void render();
         void lineToDots(vector<pair<int, int>>& line, pair<int, int>p, int row, int col);
         bool isCheckmate(King& k);
         void addNoUpdate(const pair<int, int>& src, char p);
@@ -38,8 +40,11 @@ class Board{
         bool pawnOnLastRows();
         char whoseTurn();
         void promote(char c);
+        void RevertCurrTurn();
         unique_ptr<King> bKing;
         unique_ptr<King> wKing;
+        pair<char, pair<pair<int, int>, pair<int, int>>> record;
+        pair<bool , bool> recordMoved;
         void init();
         void undo(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
         bool inCheck(King& k);

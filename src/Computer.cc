@@ -56,27 +56,20 @@ pair<pair<int, int>, pair<int, int>> Computer::L3_GetMove(Board &CH_Board) const
         auto destPieceIter = CH_Board.pieceAt(move.second.first, move.second.second);
         char destPiece = destPieceIter != CH_Board.end() ? destPieceIter->second->getName() : ' ';
 
+        for (const auto& oppMove : CH_Board.getLegalMoves(colour == 'b' ? 'w' : 'b')) {
+            if (oppMove.second == move.first && oppMove.second != move.second) {
+                avoidingCaptureMoves.push_back(move);
+            }
+        }
+
         int Move_Valid = CH_Board.move(move.first, move.second);
 
         if (Move_Valid == 0) {
-            bool avoidsCapture = true;
-            for (const auto& oppMove : CH_Board.getLegalMoves(colour == 'b' ? 'w' : 'b')) {
-                if (oppMove.second == move.second) {
-                    avoidsCapture = false;
-                    break;
-                }
+            if (CH_Board.inCheck(colour == 'b' ? *CH_Board.wKing : *CH_Board.bKing)) {
+                checkingMoves.push_back(move);
             }
-            if (avoidsCapture) {
-                avoidingCaptureMoves.push_back(move);
-            } 
-            else {
-                if (CH_Board.inCheck(colour == 'b' ? *CH_Board.wKing : *CH_Board.bKing)) {
-                    checkingMoves.push_back(move);
-                }
-
-                if (destPiece != ' ') {
-                    capturingMoves.push_back(move);
-                }
+            if (destPiece != ' ') {
+                capturingMoves.push_back(move);
             }
         }
 

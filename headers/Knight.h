@@ -3,7 +3,6 @@
 #include "Piece.h"
 
 class Knight: public Piece{
-    //vector<pair<int, int>> range;
     public:
         Knight(char c, int row, int col);
         bool canMove(pair<int, int> dest) override;

@@ -156,6 +156,10 @@ int main(){
                 blackPlayer.win();
             } 
             currPlaying = false;
+        }else if(currPlaying && command == "undo"){
+            b.undo(b.record.second.first, b.record.second.first, b.recordMoved.second, 
+                b.record.first, b.recordMoved.first);
+            std::cout << b << std::endl;
         }
         else if (!currPlaying && command == "setup") {
             std::string option;

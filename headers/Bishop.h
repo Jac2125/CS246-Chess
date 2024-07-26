@@ -3,7 +3,6 @@
 #include "Piece.h"
 
 class Bishop: public Piece{
-    //vector<pair<int, int>> range;
     void updateDirec(int x_dir, int y_dir, map<pair<int, int>, unique_ptr<Piece>>& loc);
     public:
         Bishop(char c, int row, int col);

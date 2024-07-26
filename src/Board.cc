@@ -21,6 +21,7 @@ ostream &operator<<(ostream& out, Board& board){
     }
     out << endl << endl;
     out << " abcdefgh";
+    board.render();
     return out;
 }
 
@@ -70,6 +71,10 @@ bool Board::isStealmate(){
         if(it->second->movableNum() > 0) return false;
     }
     return true;
+}
+
+void Board::RevertCurrTurn(){
+    currTurn--;
 }
 
 bool Board::isCheckmate(King& k){
@@ -191,6 +196,7 @@ void Board::undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, 
         }
         
 }
+
 
 bool Board::canBlockDot(pair<int, int>src, vector<pair<int, int>> range){
     bool moved = loc.find(src)->second->getMoved();
@@ -321,6 +327,7 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     
     bool bTurn = currTurn % 2 == 0 ? true : false;
     auto it = loc.find(src);
+    bool srcMoved = it->second->getMoved();
     if(it == loc.end()) return -1;
     if(it->second->isBlack() != bTurn) return false;
     
@@ -381,6 +388,11 @@ int Board::move(const pair<int, int>& src, const pair<int, int>& dest){
     add(dest, n);
     loc.find(dest)->second->setMoved();
     currTurn++;
+    record.first = destN;
+    record.second.first = src;
+    record.second.second = dest;
+    recordMoved.first = srcMoved;
+    recordMoved.second = movedDest; 
     updateBoard();
     return 0;
 }
@@ -547,3 +559,24 @@ char Board::whoseTurn(){
 }
 
 int Board::getWinner(){ return winner; }
+
+void Board::render(){
+    int recSize = 50;
+    for(int i = 8; i>0; i--){
+        for(int j = 0; j<9; j++){
+            int colour = (i+j)%2==1 ? Xwindow::Blue : Xwindow::Green ;
+            window.fillRectangle(j*50-50, i*50-50, recSize, recSize, colour);
+
+        }
+    }
+    for(int i = 1; i<9; i++){
+        for(int j = 1; j<9; j++){
+            auto it = loc.find({i,j});
+            if(it != end()){
+                char c = it->second->getName();
+                string msg{c};
+                window.drawString(j*50-20, i*50-20, msg, Xwindow::Black);
+            }
+        }
+    }
+}
