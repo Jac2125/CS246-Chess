@@ -476,8 +476,8 @@ void Board::updateBoard(){
     for(auto it = loc.begin(); it != loc.end(); ++it){
         it->second->updateRange(loc);
     }
-    if(bKing != NULL && inCheck(*bKing) ) winner = 1;
-    else if(wKing != NULL && inCheck(*wKing)) winner = 2;
+    if(bKing != NULL && inCheck(*bKing) && isCheckmate(*bKing)) winner = 1;
+    else if(wKing != NULL && inCheck(*wKing) && isCheckmate(*wKing)) winner = 2;
     else if(isStealmate()) winner = 0;
     else winner = -1;
 }
