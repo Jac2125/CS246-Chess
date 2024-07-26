@@ -25,11 +25,9 @@ class Board{
     bool canSave(King& s);
     bool canBlockDot(pair<int, int>src, vector<pair<int, int>> range);
     bool canBlockLine(pair<int, int>src, vector<pair<int, int>> range);
-    
     void undoNoUpdate(const pair<int, int>& src, const pair<int, int>& dest, bool destMoved, char destName, bool srcMoved);
-    public:
-        void RevertCurrTurn();
-        void updateBoard();
+    public: 
+        void addNoUpdate(const pair<int, int>& src, char p);
         bool promotionAvailable();
         bool pawnOnLastRows();
         void addNoUpdate(const pair<int, int>& src, char p);
