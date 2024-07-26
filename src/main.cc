@@ -2,12 +2,20 @@
 #include <iostream>
 #include <sstream>
 #include "../headers/Board.h"
+#include "../headers/Computer.h"
+#include "../headers/Players.h"
 
 int main(){
     std::string command;
     bool blackTurn{false};
     bool currPlaying{false};
+    bool blackIsComputer{false};
+    bool whiteIsComputer{false};
+    int whiteLevel = 0;
+    int blackLevel = 0;
     Board b{};
+    Players whitePlayer{'w'}; 
+    Players blackPlayer{'b'};
     while (std::cin >> command) {
         if (command == "game" ) {
             std::string white,black;
@@ -16,11 +24,12 @@ int main(){
                 //do initialization?
                 std::cout << white << std::endl;
             }else{
-                int level;
                 for(char c : black){
-                    if(isdigit(c)) level = c - '0';
+                    if(isdigit(c)) whiteLevel = c - '0';
                 }
-                std::cout << white << level << std::endl;
+                std::cout << white << whiteLevel << std::endl;
+                whitePlayer = Computer('w');
+                whiteIsComputer = true; 
                 //do init computer
             }
 
@@ -28,20 +37,25 @@ int main(){
                 //do initialization?
                 std::cout << black << std::endl;
             }else{
-                int level;
                 for(char c : black){
-                    if(isdigit(c)) level = c - '0';
+                    if(isdigit(c)) blackLevel = c - '0';
                 }
-                std::cout << black << " " << level << std::endl;
+                std::cout << black << " " << blackLevel << std::endl;
                 //do init computer
-                
+                blackPlayer = Computer('b');
+                blackIsComputer = true;
             }
             currPlaying = true;
         }
         else if (currPlaying && command == "resign") {
-            //
-            if(blackTurn) std::cout << "Black Resign" << std::endl;//black resign increase white's score
-            if(!blackTurn) std::cout << "White Resign" << std::endl;//white resign increase black's score
+            //black resign increase white's score
+            if(blackTurn){
+                std::cout << "Black Resigns" << std::endl;
+                whitePlayer.win();
+            }else if(!blackTurn){ //white resign increase black's score
+                std::cout << "White Resign" << std::endl;
+                blackPlayer.win();
+            } 
             currPlaying = false;
         }
         else if (currPlaying && command == "move") {
@@ -52,6 +66,22 @@ int main(){
             std::pair<int, int>dest{destRow, destCol - 'a' + 1};
             b.move(src, dest);
             cout << b << endl;
+            int winner = b.getWinner();
+            if(winner == 0){
+                cout << "Stealmate" << endl;
+                currPlaying = false;
+            }
+            if(winner == 1){
+                cout << "Checkmate! White wins" << endl;
+                whitePlayer.win();
+                currPlaying = false;
+            }
+            if(winner == 2){
+                cout << "Checkmate! Black wins" << endl;
+                blackPlayer.win();
+                currPlaying = false;
+            }
+            blackTurn = currPlaying? !blackTurn : blackTurn;
             //move using two pairs
         }
         else if (!currPlaying && command == "setup") {
@@ -87,12 +117,17 @@ int main(){
                         std::cout << "White Turn" << std::endl;
                     }
                 }else if(option == "done"){
-                    done = true;
-                    std::cout << "done" <<std::endl;
+                    bool verified = b.verifySetup();
+                    if(verified){
+                        done = true;
+                        std::cout << "done" <<std::endl;
+                    }else{
+                        std::cout << "Please correct the setup" <<std::endl;
+                    }
                 }
             }
         }//if
-        blackTurn = currPlaying? !blackTurn : blackTurn;
+        
     } // while
     //display scores
 }
